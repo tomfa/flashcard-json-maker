@@ -49,13 +49,14 @@ def readQuiz(path):
     currentchapter = ""
     qnum = -1
     for line in lines:
-        line = line.strip()
+        line = line.strip().replace('"', '\\"')
 
         if is_ignorable(line):
             continue
 
         if line_defines_chapter(line):
-            currentchapter = line
+            # omit 'Chapter '
+            currentchapter = line[8:]
             continue
 
         if line_defines_question(line):
