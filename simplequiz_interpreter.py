@@ -47,6 +47,7 @@ def readQuiz(path):
     readingQ = False  # Are we currently reading a question?
     readingA = False  # Are we currently reading an answer?
     currentchapter = ""
+    chapters = []
     qnum = -1
     for line in lines:
         line = line.strip().replace('"', '\\"')
@@ -57,6 +58,8 @@ def readQuiz(path):
         if line_defines_chapter(line):
             # omit 'Chapter '
             currentchapter = line[8:]
+            if currentchapter not in chapters:
+                chapters.append(currentchapter)
             continue
 
         if line_defines_question(line):
@@ -79,7 +82,7 @@ def readQuiz(path):
         elif (readingQ):
             questions[len(questions)-1].append_line_to_question(line)
 
-    return questions
+    return questions, chapters
 
 
 def is_ignorable(line):
@@ -112,8 +115,14 @@ if __name__ == "__main__":
         print("Usage: Run as 'python flash_interpreter.py myfile.txt'")
         sys.exit()
     
-    questions = readQuiz(args[0])
+    questions, chapters = readQuiz(args[0])
     f = open('data.js', 'w')
+    f.write('var chapters = [')
+    for i in range(len(chapters)):
+        f.write('"' + chapters[i] + '"')
+        if (i + 1) < len(chapters):
+            f.write(', ')
+    f.write(']\n\n')
     f.write('var questions = [\n')
     for q in questions:
         f.write('{\n')
